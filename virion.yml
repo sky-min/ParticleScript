@@ -1,5 +1,5 @@
-name: CustomParticle
-antigen: skymin\CustomParticle
+name: ParticleScript
+antigen: skymin\ParticleScript
 api: 4.4.0
 version: 1.0.0
 author: skymin
