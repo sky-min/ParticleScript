@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace skymin\ParticleScript;
 
-use skymin\ParticleScript\script\ParticleScript;
+use skymin\ParticleScript\script\ParticleScripts;
 use skymin\ParticleScript\exception\ParticleScriptException;
 
 use function in_array;
@@ -14,11 +14,11 @@ use function file_get_contents;
 
 final class ScriptManager{
 
-	/** @var ParticleScript[] */
-	private static array $scripts = [];
+	/** @var ParticleScripts[] */
+	private static array $scriptFiles = [];
 
 	public static function register(string $fileName) : void{
-		if(isset(self::$scripts[$fileName])){
+		if(isset(self::$scriptFiles[$fileName])){
 			throw new ParticleScriptException("The $fileName file is already registered particle script.");
 		}
 		if(!file_exists($fileName)){
@@ -32,15 +32,15 @@ final class ScriptManager{
 		if(!is_array($content)){
 			throw new ParticleScriptException("Failed to load the $fileName file.");
 		}
-		if(!isset($content['declare']) || $content['declare'] !== 'particle_script'){
+		if(!isset($content['particle_scripts'])){
 			throw new ParticleScriptException("The $fileName file is not particle script.");
 		}
-		self::$scripts[$fileName] = new ParticleScriptException($content);
+		self::$scriptFiles[$fileName] = new ParticleScript($content['particle_scripts']);
 	}
 
-	public static function getScript(string $fileName) : ParticleScript{
-		if(isset(self::$scripts[$fileName])){
-			return self::$scripts[$fileName];
+	public static function getScript(string $fileName) : ParticleScripts{
+		if(isset(self::$scriptFiles[$fileName])){
+			return self::$scriptFiles[$fileName];
 		}else{
 			throw new ParticleScriptException("The $fileName file is unregistered particle script.")
 		}
