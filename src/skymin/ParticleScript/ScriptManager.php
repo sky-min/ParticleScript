@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace skymin\ParticleScript;
 
-use skymin\ParticleScript\script\ParticleScripts;
+use skymin\ParticleScript\script\ParticleScriptFile;
 use skymin\ParticleScript\exception\ParticleScriptException;
 
 use function in_array;
@@ -14,10 +14,10 @@ use function file_get_contents;
 
 final class ScriptManager{
 
-	/** @var ParticleScripts[] */
+	/** @var ParticleScriptFile[] */
 	private static array $scriptFiles = [];
 
-	public static function register(string $fileName) : void{
+	public static function registerFile(string $fileName) : void{
 		if(isset(self::$scriptFiles[$fileName])){
 			throw new ParticleScriptException("The $fileName file is already registered particle script.");
 		}
@@ -35,10 +35,10 @@ final class ScriptManager{
 		if(!isset($content['particle_scripts'])){
 			throw new ParticleScriptException("The $fileName file is not particle script.");
 		}
-		self::$scriptFiles[$fileName] = new ParticleScript($content['particle_scripts']);
+		self::$scriptFiles[$fileName] = new ParticleScriptFile($fileName, $content['particle_scripts']);
 	}
 
-	public static function getScript(string $fileName) : ParticleScripts{
+	public static function getScript(string $fileName) : ParticleScriptFile{
 		if(isset(self::$scriptFiles[$fileName])){
 			return self::$scriptFiles[$fileName];
 		}else{
