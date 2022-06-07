@@ -13,57 +13,79 @@ use pocketmine\network\mcpe\protocol\{
 	LevelEventPacket,
 	SpawnParticleEffectPacket
 };
+use pocketmine\network\mcpe\protocol\types\DimensionIds;
 
 use function is_int;
 use function is_float;
 use function is_string;
 use function is_array;
 use function array_merge;
+use function count;
 use function sin;
 use function cos;
 use function deg2rad;
 
 final class ParticleScript{
 
+	private const PARTICLE_TYPE_INT = 0;
+	private const PARTICLE_TYPE_STRING = 1;
+
 	private array $data;
+	private int $particle_type;
 
 	public function __construct(
-		private ParricleScriptFile $file,
+		private ParticleScriptFile $file,
 		private string $name,
 		array $data
 	){
 		if(!isset($data['particle'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::REQUIRE_PARTICLE);
+			$this->error(ScriptExceptionMessage::REQUIRE_PARTICLE);
 		}
 		if(!isset($data['shape'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::REQUIRE_SHAPE);
+			$this->error(ScriptExceptionMessage::REQUIRE_SHAPE);
 		}
 		if(!isset($data['unit'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::REQUIRE_UNIT);
+			$this->error(ScriptExceptionMessage::REQUIRE_UNIT);
 		}
 		$particle = $data['particle'];
 		if(!is_string($particle) && !is_int($particle)){
-			throw new ParticleScriptException(ScriptExceptionMessage::TYPE_PARTICLE);
+			$this->error(ScriptExceptionMessage::TYPE_PARTICLE);
 		}
 		if(!is_array($data['shape'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::TYPE_SHAPE);
+			$this->error(ScriptExceptionMessage::TYPE_SHAPE);
 		}
-		$unit = $scirpt['unit'];
+		$unit = $data['unit'];
 		if(!is_int($unit) && !is_float($unit)){
-			throw new ParticleScriptException(ScriptExceptionMessage::TYPE_UNIT);
+			$this->error(ScriptExceptionMessage::TYPE_UNIT);
 		}
 		if(isset($data['extends']) && !is_array($data['extends'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::TYPE_EXTENDS);
+			$this->error(ScriptExceptionMessage::TYPE_EXTENDS);
 		}
 		if(isset($data['offset']) && !is_array($data['offset'])){
-			throw new ParticleScriptException(ScriptExceptionMessage::TYPE_OFFSET);
+			$this->error(ScriptExceptionMessage::TYPE_OFFSET);
 			foreach($data['offset'] as $value){
 				if(!is_int($value) && !is_float($value)){
-					throw new ParticleScriptException(ScriptExceptionMessage::TYPE_OFFSET);
+					$this->error(ScriptExceptionMessage::TYPE_OFFSET);
 				}
 			}
 		}
+		if(is_string($particle)){
+			$this->particle_type = self::PARTICLE_TYPE_STRING;
+		}
+		if(is_int($particle)){
+			$this->particle_type = self::PARTICLE_TYPE_INT;
+		}
+		if(isset($data['molang']) && $this->particle_type === self::PARTICLE_TYPE_INT){
+			$this->error(ScriptExceptionMessage::TYPE_MOLANG);
+		}
+		if(isset($data['leveldata']) && $this->particle_type === self::PARTICLE_TYPE_STRING){
+			$this->error(ScriptExceptionMessage::TYPE_LEVELDATA);
+		}
 		$this->data = $data;
+	}
+
+	private function error(string $message) : void{
+		throw new ParticleScriptException("{$this->file->getFileName()}[{$this->name}]: " . $message);
 	}
 
 	/** @return LevelEventPacket[]|SpawnParticleEffectPacket[] */
@@ -79,7 +101,7 @@ final class ParticleScript{
 			$file = $this->file;
 			foreach($data['extends'] as $name){
 				if(!is_string($name)){
-					throw new ParticleScriptException(ScriptExceptionMessage::TYPE_EXTENDS);
+					$this->error(ScriptExceptionMessage::TYPE_EXTENDS);
 				}
 				$script = $file->getScript($name);
 				if($script instanceof ParticleScript){
@@ -91,7 +113,45 @@ final class ParticleScript{
 			$offset = $data['offset'];
 			$pos->add($offset[0], $offset[1] ?? 0, $offset[2] ?? 0);
 		}
-		//TODO
+		$cpk = match($this->particle_type){
+			self::PARTICLE_TYPE_INT => LevelEventPacket::standardParticle($data['particle'], $data['leveldata'] ?? 0, $pos),
+			self::PARTICLE_TYPE_STRING => SpawnParticleEffectPacket::create(
+				DimensionIds::OVERWORLD,
+				-1,
+				$pos,
+				$data['particle'],
+				$data['molang'] ?? null
+			)
+		};
+		$unit = $data['unit'];
+		$yaw = deg2rad($yaw);
+		$pitch = deg2rad($pitch);
+		$roll = deg2rad($roll);
+		$ysin = sin($yaw);
+		$ycos = cos($yaw);
+		$psin = sin($pitch);
+		$pcos = cos($pitch);
+		$x_center = count($data['shape']) / 2;
+		foreach($data['shape'] as $x => $z_shape){
+			if(!is_array($z_shape)){
+				$this->error(ScriptExceptionMessage::TYPE_SHAPE);
+			}
+			$z_center = count($z_shape) / 2;
+			foreach($z_shape as $z => $y){
+				if(!is_int($y)) continue;
+				$dx = ($x - $x_center) * $unit;
+				$dy = $y * $unit;
+				$dz = ($z - $z_center) * $unit;
+				$pk = clone $cpk;
+				$pk->position = $pos->add(
+					($dx * $ycos) + ($dz * $pcos),
+					($dy * $psin),
+					($dz * $pcos) + ($dx * $ysin),
+				);
+				$result[] = $pk;
+			}
+		}
+		return $result;
 	}
 
 }

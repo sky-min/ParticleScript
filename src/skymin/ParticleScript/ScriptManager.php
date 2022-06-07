@@ -38,11 +38,11 @@ final class ScriptManager{
 		self::$scriptFiles[$fileName] = new ParticleScriptFile($fileName, $content['particle_scripts']);
 	}
 
-	public static function getScript(string $fileName) : ParticleScriptFile{
+	public static function getScriptFile(string $fileName) : ParticleScriptFile{
 		if(isset(self::$scriptFiles[$fileName])){
 			return self::$scriptFiles[$fileName];
 		}else{
-			throw new ParticleScriptException("The $fileName file is unregistered particle script.")
+			throw new ParticleScriptException("The $fileName file is unregistered particle script.");
 		}
 	}
 

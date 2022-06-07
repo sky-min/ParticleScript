@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace skymin\ParticleScript;
+namespace skymin\ParticleScript\script;
 
 use skymin\ParticleScript\exception\{
-	ScriptExceptionMessage
+	ScriptExceptionMessage,
 	ParticleScriptException
 };
 
@@ -23,7 +23,7 @@ final class ParticleScriptFile{
 	){
 		foreach($data as $name => $script){
 			if(!is_string($name)){
-				throw new ParticleScriptException(ScriptExceptionMessage::SCRIPT_NAME . "\nError file is $this->fileName");
+				throw new ParticleScriptException($this->fileName . ':' . ScriptExceptionMessage::SCRIPT_NAME);
 			}
 			$this->scripts[$name] = new ParticleScript($this, $name, $script);
 		}
@@ -34,7 +34,7 @@ final class ParticleScriptFile{
 	}
 
 	public function getScript(string $name) : ?ParticleScript{
-		return $this->scripts[$name] ?? null
+		return $this->scripts[$name] ?? null;
 	}
 
 }
