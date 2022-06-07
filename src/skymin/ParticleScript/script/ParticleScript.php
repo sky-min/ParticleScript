@@ -85,16 +85,11 @@ final class ParticleScript{
 		}
 		if(isset($data['offset']) && !is_array($data['offset'])){
 			$this->error(ScriptExceptionMessage::TYPE_OFFSET);
-			/*
-			 WARNING - this seems unreachable
-			 WARNING - Please see and edit
-			 WARNING - $data['offset'] is not array
-			 foreach($data['offset'] as $value){
-				if(!is_int($value) && !is_float($value)){
-					$this->error(ScriptExceptionMessage::TYPE_OFFSET);
-				}
+		}
+		foreach($data['offset'] as $value){
+			if(!is_int($value) && !is_float($value)){
+				$this->error(ScriptExceptionMessage::TYPE_OFFSET);
 			}
-			*/
 		}
 		if(is_string($particle)){
 			$this->particle_type = self::PARTICLE_TYPE_STRING;
