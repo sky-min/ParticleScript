@@ -25,6 +25,8 @@ declare(strict_types = 1);
 
 namespace skymin\ParticleScript\exception;
 
-final class ParticleScriptException extends \RuntimeException{
+use RuntimeException;
+
+final class ParticleScriptException extends RuntimeException{
 
 }

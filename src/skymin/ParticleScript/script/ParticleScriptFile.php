@@ -30,8 +30,6 @@ use skymin\ParticleScript\exception\{
 	ParticleScriptException
 };
 
-use pocketmine\math\Vector3;
-
 use function is_string;
 
 final class ParticleScriptFile{

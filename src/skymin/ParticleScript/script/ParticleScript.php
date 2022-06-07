@@ -84,12 +84,17 @@ final class ParticleScript{
 			$this->error(ScriptExceptionMessage::TYPE_EXTENDS);
 		}
 		if(isset($data['offset']) && !is_array($data['offset'])){
+			/*
+			 *
+			 *  WARNING - this seems unreachable
+			 *  WARNING - Please see and edit
 			$this->error(ScriptExceptionMessage::TYPE_OFFSET);
 			foreach($data['offset'] as $value){
 				if(!is_int($value) && !is_float($value)){
 					$this->error(ScriptExceptionMessage::TYPE_OFFSET);
 				}
 			}
+			*/
 		}
 		if(is_string($particle)){
 			$this->particle_type = self::PARTICLE_TYPE_STRING;
@@ -107,7 +112,7 @@ final class ParticleScript{
 	}
 
 	private function error(string $message) : void{
-		throw new ParticleScriptException("{$this->file->getFileName()}[{$this->name}]: " . $message);
+		throw new ParticleScriptException("{$this->file->getFileName()}[$this->name]: " . $message);
 	}
 
 	/** @return LevelEventPacket[]|SpawnParticleEffectPacket[] */
@@ -150,7 +155,6 @@ final class ParticleScript{
 		$ysin = sin($yaw);
 		$ycos = cos($yaw);
 		$psin = sin($pitch);
-		$pcos = cos($pitch);
 		$x_center = count($data['shape']) / 2 - 0.5;
 		foreach($data['shape'] as $x => $z_shape){
 			if(!is_array($z_shape)){

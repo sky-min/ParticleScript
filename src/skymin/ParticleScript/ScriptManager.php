@@ -28,7 +28,6 @@ namespace skymin\ParticleScript;
 use skymin\ParticleScript\script\ParticleScriptFile;
 use skymin\ParticleScript\exception\ParticleScriptException;
 
-use function in_array;
 use function yaml_parse;
 use function preg_replace;
 use function file_exists;
