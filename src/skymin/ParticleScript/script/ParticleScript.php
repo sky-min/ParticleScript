@@ -75,10 +75,10 @@ final class ParticleScript{
 		if(is_int($particle)){
 			$this->particle_type = self::PARTICLE_TYPE_INT;
 		}
-		if(isset($data['molang']) && $this->particle_type === self::PARTICLE_TYPE_INT){
+		if(isset($data['molang']) && !is_string($data['molang'])){
 			$this->error(ScriptExceptionMessage::TYPE_MOLANG);
 		}
-		if(isset($data['leveldata']) && $this->particle_type === self::PARTICLE_TYPE_STRING){
+		if(isset($data['leveldata']) && !is_int($data['leveldata'])){
 			$this->error(ScriptExceptionMessage::TYPE_LEVELDATA);
 		}
 		$this->data = $data;
@@ -92,8 +92,7 @@ final class ParticleScript{
 	public function encode(
 		Vector3 $pos,
 		float $yaw = 0.0,
-		float $pitch = 0.0,
-		float $roll = 0.0
+		float $pitch = 0.0
 	) : array{
 		$data = $this->data;
 		$result = [];
@@ -126,22 +125,21 @@ final class ParticleScript{
 		$unit = $data['unit'];
 		$yaw = deg2rad($yaw);
 		$pitch = deg2rad($pitch);
-		$roll = deg2rad($roll);
 		$ysin = sin($yaw);
 		$ycos = cos($yaw);
 		$psin = sin($pitch);
 		$pcos = cos($pitch);
-		$x_center = count($data['shape']) / 2;
+		$x_center = (count($data['shape']) / 2) + 0.5;
 		foreach($data['shape'] as $x => $z_shape){
 			if(!is_array($z_shape)){
 				$this->error(ScriptExceptionMessage::TYPE_SHAPE);
 			}
-			$z_center = count($z_shape) / 2;
+			$z_center = (count($z_shape) / 2) + 0.5;
 			foreach($z_shape as $z => $y){
 				if(!is_int($y)) continue;
-				$dx = ($x - $x_center) * $unit;
+				$dx = ($x_center - $x) * $unit;
 				$dy = $y * $unit;
-				$dz = ($z - $z_center) * $unit;
+				$dz = ($z_center - $z) * $unit;
 				$pk = clone $cpk;
 				$pk->position = $pos->add(
 					($dx * $ycos) + ($dz * $pcos),
