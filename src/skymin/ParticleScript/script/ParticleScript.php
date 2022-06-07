@@ -104,7 +104,7 @@ final class ParticleScript{
 				}
 				$script = $file->getScript($name);
 				if($script instanceof ParticleScript){
-					$result = array_merge($result, $script->encode($pos, $yaw, $pitch, $roll));
+					$result = array_merge($result, $script->encode($pos, $yaw, $pitch));
 				}
 			}
 		}
@@ -129,22 +129,22 @@ final class ParticleScript{
 		$ycos = cos($yaw);
 		$psin = sin($pitch);
 		$pcos = cos($pitch);
-		$x_center = (count($data['shape']) / 2) + 0.5;
+		$x_center = count($data['shape']) / 2 - 0.5;
 		foreach($data['shape'] as $x => $z_shape){
 			if(!is_array($z_shape)){
 				$this->error(ScriptExceptionMessage::TYPE_SHAPE);
 			}
-			$z_center = (count($z_shape) / 2) + 0.5;
+			$z_center = (count($z_shape) / 2) - 0.5;
 			foreach($z_shape as $z => $y){
 				if(!is_int($y)) continue;
-				$dx = ($x_center - $x) * $unit;
+				$dx = ($x - $x_center) * $unit;
 				$dy = $y * $unit;
-				$dz = ($z_center - $z) * $unit;
+				$dz = ($z - $z_center) * $unit;
 				$pk = clone $cpk;
 				$pk->position = $pos->add(
-					($dx * $ycos) + ($dz * $pcos),
-					($dy * $psin),
-					($dz * $pcos) + ($dx * $ysin),
+					$dx * $ycos + $dz * $ysin,
+					$dy * $psin,
+					$dx * -$ysin + $dz * $ycos
 				);
 				$result[] = $pk;
 			}
