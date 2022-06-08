@@ -30,9 +30,9 @@ final class ScriptExceptionMessage{
 	public const SCRIPT_NAME = "The script name must be a string.";
 	public const PARTICLE_NAME = "The particle name must be a string.";
 
-	public const REQUIRE_PARTICLE = "The 'particle' key is required.";
-	public const REQUIRE_SHAPE = "The 'shape' key required.";
-	public const REQUIRE_UNIT = "The 'unit' key required.";
+	public const REQUIRE_PARTICLE = "Requires 'particle' key.";
+	public const REQUIRE_SHAPE = "Requires 'shape' key.";
+	public const REQUIRE_UNIT = "Requires 'unit' key";
 
 	public const TYPE_PARTICLE = "The 'particle' key must is a string or int.";
 	public const TYPE_SHAPE = "The 'shape' key must is a 2D array.";

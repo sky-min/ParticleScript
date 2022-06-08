@@ -30,6 +30,7 @@ use skymin\ParticleScript\exception\{
 	ParticleScriptException
 };
 
+use function is_array;
 use function is_string;
 
 final class ParticleScriptFile{
@@ -49,6 +50,12 @@ final class ParticleScriptFile{
 		private string $fileName,
 		array $data
 	){
+		if(!isset($data['particles']) || !isset($data['scripts'])){
+			throw new ParticleScriptException($fileName . ": Requires 'particles' key and 'scripts' key");
+		}
+		if(!is_array($data['particles']) || !is_array($data['scripts'])){
+			throw new ParticleScriptException($fileName. ": 'particles' key and 'scripts' key must is array");
+		}
 		foreach($data['scripts'] as $name => $script){
 			if(!is_string($name)){
 				throw new ParticleScriptException($this->fileName . ':' . ScriptExceptionMessage::SCRIPT_NAME);
