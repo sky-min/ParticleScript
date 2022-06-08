@@ -53,10 +53,10 @@ final class ScriptManager{
 		if(!is_array($content)){
 			throw new ParticleScriptException("Failed to load the $fileName file.");
 		}
-		if(!isset($content['particle_scripts'])){
-			throw new ParticleScriptException("The $fileName file is not particle script.");
+		if(!isset($content['particles']) || !isset($content['scripts'])){
+			throw new ParticleScriptException("The $fileName file is not particle script.\n");
 		}
-		self::$scriptFiles[$fileName] = new ParticleScriptFile($fileName, $content['particle_scripts']);
+		self::$scriptFiles[$fileName] = new ParticleScriptFile($fileName, $content);
 	}
 
 	public static function getScriptFile(string $fileName) : ParticleScriptFile{

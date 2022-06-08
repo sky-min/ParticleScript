@@ -36,21 +36,33 @@ final class ParticleScriptFile{
 
 	/** @var ParticleScript[] */
 	private array $scripts;
+	/** @var CustomParticle[] */
+	private array $particles;
 
 	public function __construct(
 		private string $fileName,
 		array $data
 	){
-		foreach($data as $name => $script){
+		foreach($data['scripts'] as $name => $script){
 			if(!is_string($name)){
 				throw new ParticleScriptException($this->fileName . ':' . ScriptExceptionMessage::SCRIPT_NAME);
 			}
 			$this->scripts[$name] = new ParticleScript($this, $name, $script);
 		}
+		foreach ($data['particles'] as $name => $particle){
+			if(!is_string($name)){
+				throw new ParticleScriptException($this->fileName . ':' . ScriptExceptionMessage::PARTICLE_NAME);
+			}
+			$this->particles[$name] = new CustomParticle($this->fileName, $name, $particle);
+		}
 	}
 
 	public function getFileName() : string{
 		return $this->fileName;
+	}
+
+	public function getParticle(string $name) : ?CustomParticle{
+		return $this->particles[$name] ?? null;
 	}
 
 	public function getScript(string $name) : ?ParticleScript{
