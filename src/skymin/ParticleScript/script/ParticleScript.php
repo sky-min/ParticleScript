@@ -46,14 +46,20 @@ use function count;
 use function sin;
 use function cos;
 use function deg2rad;
+use function strtolower;
 
 final class ParticleScript{
 
 	private const PARTICLE_TYPE_INT = 0;
 	private const PARTICLE_TYPE_STRING = 1;
 
+	private const SHAPE_TYPE_XZ = 'xz';
+	private const SHAPE_TYPE_XY = 'xy';
+	private const SHAPE_TYPE_ZY = 'zy';
+
 	private array $data;
 	private int $particle_type;
+	private string $shape_type = self::SHAPE_TYPE_XZ;
 
 	public function __construct(
 		private ParticleScriptFile $file,
@@ -83,8 +89,10 @@ final class ParticleScript{
 		if(isset($data['extends']) && !is_array($data['extends'])){
 			$this->error(ScriptExceptionMessage::TYPE_EXTENDS);
 		}
-		if(isset($data['offset']) && !is_array($data['offset'])){
-			$this->error(ScriptExceptionMessage::TYPE_OFFSET);
+		if(isset($data['offset'])){
+			if(!is_array($data['offset'])){
+				$this->error(ScriptExceptionMessage::TYPE_OFFSET);
+			}
 			foreach($data['offset'] as $value){
 				if(!is_int($value) && !is_float($value)){
 					$this->error(ScriptExceptionMessage::TYPE_OFFSET);
@@ -102,6 +110,17 @@ final class ParticleScript{
 		}
 		if(isset($data['leveldata']) && !is_int($data['leveldata'])){
 			$this->error(ScriptExceptionMessage::TYPE_LEVELDATA);
+		}
+		if(isset($data['shape_type'])){
+			if(!is_string($data['shape_type'])){
+				$this->error('todo');
+			}
+			$this->shape_type = match(strtolower($data['shape_type'])){
+				'xz', 'x-z' => self::SHAPE_TYPE_XZ,
+				'xy', 'x-y' => self::SHAPE_TYPE_XY,
+				'zy', 'z-y' => self::SHAPE_TYPE_ZY,
+				default => $this->error('todo')
+			};
 		}
 		$this->data = $data;
 	}
@@ -144,6 +163,7 @@ final class ParticleScript{
 				$data['molang'] ?? null
 			)
 		};
+		$shape_type = $this->shape_type;
 		$unit = $data['unit'];
 		$yaw = deg2rad($yaw);
 		$pitch = deg2rad($pitch);
@@ -159,13 +179,24 @@ final class ParticleScript{
 			$z_center = (count($z_shape) / 2) - 0.5;
 			foreach($z_shape as $z => $y){
 				if(!is_int($y)) continue;
-				$dx = ($x - $x_center) * $unit;
-				$dy = $y * $unit;
-				$dz = ($z - $z_center) * $unit;
+				$dx = $dy = $dz = 0;
+				if($shape_type === self::SHAPE_TYPE_XZ){
+					$dx = ($x - $x_center) * $unit;
+					$dy = $y * $unit;
+					$dz = ($z - $z_center) * $unit;
+				}elseif($shape_type === self::SHAPE_TYPE_XY){
+					$dx = ($x - $x_center) * $unit;
+					$dy = ($z - $z_center) * $unit;
+					$dz = $y * $unit;
+				}elseif($shape_type === self::SHAPE_TYPE_ZY){
+					$dx = $y * $unit;
+					$dy = ($z - $z_center) * $unit;
+					$dz = ($x - $x_center) * $unit;
+				}
 				$pk = clone $cpk;
 				$pk->position = $pos->add(
 					$dx * $ycos + $dz * $ysin,
-					$dy * $psin,
+					$dy * $pcos,
 					$dx * -$ysin + $dz * $ycos
 				);
 				$result[] = $pk;
