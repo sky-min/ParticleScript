@@ -44,13 +44,12 @@ final class CustomParticle{
 
 	private const PARTICLE_TYPE_INT = 0;
 	private const PARTICLE_TYPE_STRING = 1;
-	private const PARTICLE_TYPE_ERROR = 2;
 
 	private int|string $particleId;
 	private int $particleType;
 	private null|int|string $particleData = null;
 
-	public function __construct(string $fileName, string $name, private array $data){
+	public function __construct(string $fileName, string $name, array $data){
 		if(!isset($data['particle'])){
 			throw new ParticleScriptException("{$fileName}[particles][$name]: " . ScriptExceptionMessage::REQUIRE_PARTICLE);
 		}
@@ -58,11 +57,8 @@ final class CustomParticle{
 		$this->particleType = $type = match(true){
 			is_int($particleId) =>  self::PARTICLE_TYPE_INT,
 			is_string($particleId) => self::PARTICLE_TYPE_STRING,
-			default => self::PARTICLE_TYPE_ERROR
+			default => throw new ParticleScriptException("{$fileName}[particles][$name]: " . ScriptExceptionMessage::TYPE_PARTICLE)
 		};
-		if($type === self::PARTICLE_TYPE_ERROR){
-			throw new ParticleScriptException("{$fileName}[particles][$name]: " . ScriptExceptionMessage::TYPE_PARTICLE);
-		}
 		if(isset($data['data'])){
 			$particleData = $data['data'];
 			if((is_string($particleData) && $type === self::PARTICLE_TYPE_STRING)
