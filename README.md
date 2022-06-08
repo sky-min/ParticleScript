@@ -3,7 +3,9 @@ Do you have difficulty expressing particles?
 
 It takes a bit of hard work, but there is an easy way to do it.
 
-## example
+## how to use
+### example ParticleScriptFile
+Particle script file is yaml.
 ```YAML
 particles:
   black_dust:
@@ -48,8 +50,37 @@ scripts:
     ]
 ```
 
-## testplugij
-[test](https://github.com/sky-min/ParticleScriptTest)
+### api
+#### register ScriptFile
+```php
+use skymin\ParticleScript\ScriptManager;
+
+ScriptManager::registerFile(string $fileName);
+```
+#### Load the registered script file
+```php
+use skymin\ParticleScript\script\ParticleScriptFile;
+
+ScriptManager::getScriptFile(string $fileName) : ParticleScriptFile;
+```
+
+#### GetScript
+```php
+use skymin\ParticleScript\script\ParticleScriptFile;
+use skymin\ParticleScript\script\ParticleScript;
+
+ParticleScriptFile::getScript(string $name) : ?ParticleScript;
+```
+
+#### send Particle
+```php
+$pks = ScriptManager::getScriptFile($fileName)->getScript($scriptName)->encode(Vector3 $pos, float $yaw, float $pitch);
+/** @var Player[] $viwers */
+Server::getInstance()->broadcastPackets($viwers, $pks);
+```
+
+## testplugin
+[here](https://github.com/sky-min/ParticleScriptTest)
 
 ## image
 ![Screenshot_20220608-233354_Minecraft](https://user-images.githubusercontent.com/81374952/172644243-424f5876-140f-4016-8d39-46116fe9e3f5.jpg)
