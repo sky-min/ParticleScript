@@ -37,6 +37,9 @@ use pocketmine\network\mcpe\protocol\{
 };
 use pocketmine\network\mcpe\protocol\types\DimensionIds;
 
+use function is_int;
+use function is_string;
+
 final class CustomParticle{
 
 	private const PARTICLE_TYPE_INT = 0;

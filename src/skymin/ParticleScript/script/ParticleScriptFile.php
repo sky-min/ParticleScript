@@ -34,9 +34,15 @@ use function is_string;
 
 final class ParticleScriptFile{
 
-	/** @var ParticleScript[] */
+	/**
+	 * @var ParticleScript[]
+	 * @phpstan-var array<string, ParticleScript>
+	 */
 	private array $scripts;
-	/** @var CustomParticle[] */
+	/**
+	 * @var CustomParticle[]
+	 * @phpstan-var array<string, CustomParticle>
+	 */
 	private array $particles;
 
 	public function __construct(
