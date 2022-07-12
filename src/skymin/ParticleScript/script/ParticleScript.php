@@ -133,9 +133,9 @@ final class ParticleScript{
 				$dy = ($y - $y_center) * $unit;
 				$dz = $dy * $psin;
 				$particle = $particle->encode($pos->add(
-					$dx * $ycos + $dz * $ysin,
-					$dy * $pcos,
-					$dx * -$ysin + $dz * $ycos
+					$dz * -$ysin + $dx * $ycos,
+					$dy * -$pcos,
+					$dz * $ycos + $dx * $ysin
 				));
 				$result[] = $particle;
 			}
